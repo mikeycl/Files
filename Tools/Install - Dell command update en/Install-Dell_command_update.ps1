@@ -1,7 +1,10 @@
-﻿<#
- Install Wrapper 2.1
- Author: Mikael Nystrom
- http://www.deploymentbunny.com 
+<#
+.Synopsis
+   Short description.
+.DESCRIPTION
+   Long description
+.EXAMPLE
+
 #>
 
 [CmdletBinding(SupportsShouldProcess=$true)]
@@ -110,6 +113,12 @@ $ARCHITECTURE = $env:PROCESSOR_ARCHITECTURE
 #Try to Import SMSTSEnv
 . Import-SMSTSENV
 
+
+$tsenv = New-Object -COMObject Microsoft.SMS.TSEnvironment
+$Logpath = $tsenv.Value("LogPath")
+$LogFile = $Logpath + "\" + "$ScriptName.txt"
+
+
 #Start Transcript Logging
 . Start-Logging
 
@@ -127,13 +136,21 @@ Write-Output "$ScriptName - Current Culture: $LANG"
 Write-Output "$ScriptName - Integration with MDT(LTI/ZTI): $MDTIntegration"
 Write-Output "$ScriptName - Log: $LogFile"
 
-$InstallerFile = Get-ChildItem -Path $SOURCEROOT -Filter *.exe
+$exes = Get-ChildItem -Path $SOURCEROOT -Filter *.exe
+foreach($exe in $exes){
+    $Installer = """$($exe.fullname)"""
+    $LogFile = """$("$Logpath\$($exe.name)" + ".log")"""
+    $Arguments = "/s /l=$LogFile"
+    $result = Invoke-Exe -Executable $Installer -Arguments $Arguments -Verbose
+    
+    switch ($result)
+    {
+        '2' {Return 3010}
+        Default {Return 1}
+    }
 
-$Arguments = "/VERYSILENT /NORESTART /MERGETASKS=!runcode"
-$Exe = $InstallerFile.FullName
-
-Write-Output "$ScriptName - Invoke-Exe -Executable $Exe -Arguments $Arguments"
-Invoke-Exe -Executable $Exe -Arguments $Arguments
-
-#Stop Logging
-. Stop-Logging
+    #Stop Logging
+    . Stop-Logging
+    Break
+}
+ 

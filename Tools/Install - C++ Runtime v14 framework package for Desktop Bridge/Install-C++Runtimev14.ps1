@@ -1,7 +1,10 @@
-﻿<#
- Install Wrapper 2.1
- Author: Mikael Nystrom
- http://www.deploymentbunny.com 
+<#
+.Synopsis
+   Short description.
+.DESCRIPTION
+   Long description
+.EXAMPLE
+
 #>
 
 [CmdletBinding(SupportsShouldProcess=$true)]
@@ -129,11 +132,10 @@ Write-Output "$ScriptName - Log: $LogFile"
 
 $InstallerFile = Get-ChildItem -Path $SOURCEROOT -Filter *.exe
 
-$Arguments = "/VERYSILENT /NORESTART /MERGETASKS=!runcode"
+$Arguments = "/QUIET /NORESTART "
 $Exe = $InstallerFile.FullName
 
 Write-Output "$ScriptName - Invoke-Exe -Executable $Exe -Arguments $Arguments"
 Invoke-Exe -Executable $Exe -Arguments $Arguments
-
 #Stop Logging
 . Stop-Logging

@@ -1,7 +1,10 @@
-﻿<#
- Install Wrapper 2.1
- Author: Mikael Nystrom
- http://www.deploymentbunny.com 
+<#
+.Synopsis
+   Short description.
+.DESCRIPTION
+   Long description
+.EXAMPLE
+
 #>
 
 [CmdletBinding(SupportsShouldProcess=$true)]
@@ -127,13 +130,15 @@ Write-Output "$ScriptName - Current Culture: $LANG"
 Write-Output "$ScriptName - Integration with MDT(LTI/ZTI): $MDTIntegration"
 Write-Output "$ScriptName - Log: $LogFile"
 
-$InstallerFile = Get-ChildItem -Path $SOURCEROOT -Filter *.exe
 
-$Arguments = "/VERYSILENT /NORESTART /MERGETASKS=!runcode"
-$Exe = $InstallerFile.FullName
+$InstallerFiles = Get-ChildItem -Path $SOURCEROOT -Filter *.exe
 
-Write-Output "$ScriptName - Invoke-Exe -Executable $Exe -Arguments $Arguments"
-Invoke-Exe -Executable $Exe -Arguments $Arguments
+foreach($InstallerFile in $InstallerFiles){
+    $Args = "/S"
+    $Exe = $InstallerFile.FullName
+    Write-Output "Invoke-Exe -Executable $Exe -Arguments $Args"
+    Invoke-Exe -Executable $Exe -Arguments $Args
+}
 
 #Stop Logging
 . Stop-Logging

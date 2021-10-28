@@ -1,7 +1,10 @@
-﻿<#
- Install Wrapper 2.1
- Author: Mikael Nystrom
- http://www.deploymentbunny.com 
+<#
+.Synopsis
+   Short description.
+.DESCRIPTION
+   Long description
+.EXAMPLE
+
 #>
 
 [CmdletBinding(SupportsShouldProcess=$true)]
@@ -127,13 +130,18 @@ Write-Output "$ScriptName - Current Culture: $LANG"
 Write-Output "$ScriptName - Integration with MDT(LTI/ZTI): $MDTIntegration"
 Write-Output "$ScriptName - Log: $LogFile"
 
-$InstallerFile = Get-ChildItem -Path $SOURCEROOT -Filter *.exe
+$DestFolder = "$env:TEMP\o365"
+New-Item -Path $DestFolder -Force -ItemType Directory
+robocopy """$SOURCEROOT""" """$DestFolder""" /e /s
 
-$Arguments = "/VERYSILENT /NORESTART /MERGETASKS=!runcode"
-$Exe = $InstallerFile.FullName
+$ConfigFile = """$DestFolder\Configuration.xml"""
 
-Write-Output "$ScriptName - Invoke-Exe -Executable $Exe -Arguments $Arguments"
-Invoke-Exe -Executable $Exe -Arguments $Arguments
+$Args = "/configure $ConfigFile"
+$Exec = "$DestFolder\setup.exe"
+
+Invoke-Exe -Executable $Exec -Arguments $Args -Verbose
+
+Remove-Item -Path $DestFolder -Recurse -Force
 
 #Stop Logging
 . Stop-Logging
